@@ -28,6 +28,8 @@ public class ScreenshotMaker {
 	
 	private static final String INSTAGRAM_USERNAME = "";
 	
+	private static final String INSTAGRAM_PASSWORD = "";
+	
 	
 	private ScreenshotMaker() {}
 	
