@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
         - name: screenshotter
-          image: gcr.io/${{ secrets.GKE_PROJECT }}/screenshotter:${{  github.sha }}
+          image: gcr.io/PROJECT_ID/IMAGE:TAG
           ports:
             - containerPort: 8080
           resources:
