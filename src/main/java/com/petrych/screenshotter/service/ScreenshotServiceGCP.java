@@ -17,7 +17,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 @Service
-@Profile("gcp")
 class ScreenshotServiceGCP extends AbstractScreenshotService {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ScreenshotServiceGCP.class);
