@@ -58,8 +58,8 @@ spec:
                 secretKeyRef:
                   name: db-cred
                   key: database
-            - name: JAVA_OPTIONS
-              value: "-Dspring.profiles.active=gcp"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "gcp"
         - name: cloud-sql-proxy
           image: gcr.io/cloudsql-docker/gce-proxy:1.32.0 # make sure the use the latest version
           command:

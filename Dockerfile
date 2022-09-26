@@ -42,5 +42,5 @@ RUN apt-get update && apt-get -y install google-chrome-stable
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-Dspring.profiles.active=local", "-jar","/screenshotter.jar"]
+ENTRYPOINT ["java", "-jar","/screenshotter.jar"]
 
