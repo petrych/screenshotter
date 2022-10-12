@@ -4,8 +4,6 @@ import com.petrych.screenshotter.persistence.model.Screenshot;
 import com.petrych.screenshotter.service.IScreenshotService;
 import com.petrych.screenshotter.web.dto.ScreenshotDto;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -68,9 +66,10 @@ public class ScreenshotController {
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public ScreenshotDto store(@RequestBody String urlString) throws IOException {
+	public ScreenshotDto store(@RequestBody String urlString,
+	                           @RequestParam(name = "userName", defaultValue = "") String userName) throws IOException {
 		
-		Screenshot screenshot = screenshotService.storeScreenshot(urlString);
+		Screenshot screenshot = screenshotService.storeScreenshot(urlString, userName);
 		
 		return convertToDto(screenshot);
 	}
@@ -79,9 +78,10 @@ public class ScreenshotController {
 	
 	@PutMapping
 	@ResponseStatus(HttpStatus.OK)
-	public void update(@RequestBody String urlString) throws IOException {
+	public void update(@RequestBody String urlString,
+	                   @RequestParam(name = "userName", defaultValue = "") String userName) throws IOException {
 		
-		screenshotService.updateScreenshot(urlString);
+		screenshotService.updateScreenshot(urlString, userName);
 	}
 	
 	// delete
@@ -109,7 +109,8 @@ public class ScreenshotController {
 		
 		long entityId = entity.getId();
 		
-		return new ScreenshotDto(entityId, entity.getName(), buildUri(entityId), entity.getDateTimeCreated());
+		return new ScreenshotDto(entityId, entity.getName(), buildUri(entityId), entity.getDateTimeCreated(),
+		                         entity.getUserId());
 	}
 	
 	private String buildUri(long screenshotId) {

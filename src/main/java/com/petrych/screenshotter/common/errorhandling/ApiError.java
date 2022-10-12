@@ -13,6 +13,10 @@ public class ApiError {
 	
 	public String path;
 	
+	
+	// only for Jackson
+	public ApiError() {}
+	
 	public ApiError(int httpStatusCode, String message, String path) {
 		
 		this.dateTimeUTC = LocalDateTime.now(ZoneOffset.UTC);

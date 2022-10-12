@@ -13,13 +13,19 @@ public interface IScreenshotService {
 	
 	Optional<Screenshot> findById(Long id);
 	
+	Optional<Screenshot> findByIdAndUserId(Long id, Long userId);
+	
 	Iterable<Screenshot> findByName(String name);
+	
+	Iterable<Screenshot> findByNameAndUserId(String name, Long userId);
+	
+	Iterable<Screenshot> findByUserId(Long userId);
 	
 	byte[] getScreenshotFileById(Long id) throws IOException;
 	
-	Screenshot storeScreenshot(String urlString) throws IOException;
+	Screenshot storeScreenshot(String urlString, String userName) throws IOException;
 	
-	void updateScreenshot(String urlString) throws IOException;
+	void updateScreenshot(String urlString, String userName) throws IOException;
 	
 	Collection<String> findScreenshotFileNamesByUrl(String urlString) throws MalformedURLException;
 	

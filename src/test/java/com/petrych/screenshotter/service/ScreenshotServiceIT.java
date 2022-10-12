@@ -2,6 +2,7 @@ package com.petrych.screenshotter.service;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import com.petrych.screenshotter.common.errorhandling.UserEntityNotFoundException;
 import com.petrych.screenshotter.persistence.model.Screenshot;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -44,6 +45,10 @@ public class ScreenshotServiceIT {
 	private static final String URL_FOR_EXISTING_SCREENSHOT = "https://www.drive.google.com/";
 	
 	private static final String URL_UNREACHABLE = "https://www.sdfghy878.qq/";
+	
+	private static final String USERNAME_EXISTS = "richard";
+	
+	private static final String USERNAME_NOT_EXISTS = "bach";
 	
 	
 	@BeforeEach
@@ -113,7 +118,7 @@ public class ScreenshotServiceIT {
 	@Test
 	void givenValidUrl_whenStore_thenSuccess() throws IOException {
 		
-		Screenshot screenshot = screenshotService.storeScreenshot(URL_VALID);
+		Screenshot screenshot = screenshotService.storeScreenshot(URL_VALID, USERNAME_EXISTS);
 		String fileName = screenshot.getFileName();
 		Path filePath = Paths.get(storageDir, fileName);
 		
@@ -141,7 +146,7 @@ public class ScreenshotServiceIT {
 	@Test
 	void givenScreenshotWithUrlExists_whenUpdate_thenUpdateExistingScreenshot() throws IOException {
 		
-		Screenshot screenshot = screenshotService.storeScreenshot(URL_VALID);
+		Screenshot screenshot = screenshotService.storeScreenshot(URL_VALID, USERNAME_EXISTS);
 		String fileName = screenshot.getFileName();
 		Path filePath = Paths.get(storageDir, fileName);
 		int screenshotsTotalBefore = ((Collection<Screenshot>) screenshotService.findAll()).size();
@@ -153,7 +158,7 @@ public class ScreenshotServiceIT {
 		assertFalse(screenshotService.findScreenshotFileNamesByUrl(URL_VALID).isEmpty());
 		assertTrue(Files.exists(filePath));
 		
-		screenshotService.updateScreenshot(URL_VALID);
+		screenshotService.updateScreenshot(URL_VALID, USERNAME_EXISTS);
 		int screenshotsTotalAfter = ((Collection<Screenshot>) screenshotService.findAll()).size();
 		
 		ArrayList<Screenshot> screenshotsAfterUpd = new ArrayList<>(
@@ -175,7 +180,7 @@ public class ScreenshotServiceIT {
 		
 		assertTrue(screenshotsBeforeUpd.isEmpty());
 		
-		screenshotService.updateScreenshot(URL_VALID_NON_EXISTING);
+		screenshotService.updateScreenshot(URL_VALID_NON_EXISTING, USERNAME_EXISTS);
 		
 		Collection<String> screenshotsAfterUpd = screenshotService.findScreenshotFileNamesByUrl(URL_VALID_NON_EXISTING);
 		long filesAfterUpdCount = Iterables.size(screenshotService.findAll());
@@ -188,7 +193,7 @@ public class ScreenshotServiceIT {
 	void givenUnreachableUrl_whenStore_thenMalformedURLException() {
 		
 		Exception ex = assertThrows(MalformedURLException.class, () -> {
-			screenshotService.storeScreenshot(URL_UNREACHABLE);
+			screenshotService.storeScreenshot(URL_UNREACHABLE, USERNAME_EXISTS);
 		});
 		
 		String actualMessage = ex.getMessage();
@@ -202,7 +207,7 @@ public class ScreenshotServiceIT {
 		String urlTooLong = Strings.repeat("*", UrlUtil.URL_LENGTH_MAX);
 		
 		Exception ex = assertThrows(MalformedURLException.class, () -> {
-			screenshotService.storeScreenshot(URL_VALID + urlTooLong);
+			screenshotService.storeScreenshot(URL_VALID + urlTooLong, USERNAME_EXISTS);
 		});
 		
 		String actualMessage = ex.getMessage();
@@ -214,7 +219,7 @@ public class ScreenshotServiceIT {
 	void givenScreenshotExists_whenDelete_thenSuccess() throws IOException {
 		
 		String url = "https://meet.google.com";
-		Screenshot screenshot = screenshotService.storeScreenshot(url);
+		Screenshot screenshot = screenshotService.storeScreenshot(url, USERNAME_EXISTS);
 		String fileName = screenshot.getFileName();
 		Path filePath = Paths.get(storageDir, fileName);
 		
@@ -230,7 +235,7 @@ public class ScreenshotServiceIT {
 	@Test
 	void givenFileNotExists_whenDelete_thenNoException() throws IOException {
 		
-		Screenshot screenshot = screenshotService.storeScreenshot(URL_VALID);
+		Screenshot screenshot = screenshotService.storeScreenshot(URL_VALID, USERNAME_EXISTS);
 		String fileName = screenshot.getFileName();
 		Path filePath = Paths.get(storageDir, fileName);
 		
@@ -241,4 +246,13 @@ public class ScreenshotServiceIT {
 		});
 	}
 	
+	@Test
+	void givenUrlExistsAndUserNotExists_ThenUserNotFoundException() {
+		
+		String url = "https://meet.google.com";
+		assertThrows(UserEntityNotFoundException.class, () -> {
+			screenshotService.storeScreenshot(url, USERNAME_NOT_EXISTS);
+		});
+		
+	}
 }

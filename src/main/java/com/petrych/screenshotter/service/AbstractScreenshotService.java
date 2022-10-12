@@ -6,6 +6,7 @@ import com.petrych.screenshotter.common.errorhandling.ScreenshotFileNotFoundExce
 import com.petrych.screenshotter.config.IStorageProperties;
 import com.petrych.screenshotter.persistence.model.Screenshot;
 import com.petrych.screenshotter.persistence.repository.IScreenshotRepository;
+import com.petrych.screenshotter.service.user.IUserService;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +31,16 @@ public abstract class AbstractScreenshotService implements IScreenshotService {
 	@Autowired
 	protected IStorageProperties properties;
 	
+	@Autowired
+	protected IUserService userService;
 	
-	protected AbstractScreenshotService(IScreenshotRepository screenshotRepo, IStorageProperties properties) {
+	
+	protected AbstractScreenshotService(IScreenshotRepository screenshotRepo, IStorageProperties properties,
+	                                    IUserService userService) {
 		
 		this.screenshotRepo = screenshotRepo;
 		this.properties = properties;
+		this.userService = userService;
 	}
 	
 	
@@ -51,9 +57,27 @@ public abstract class AbstractScreenshotService implements IScreenshotService {
 	}
 	
 	@Override
+	public Optional<Screenshot> findByIdAndUserId(Long id, Long userId) {
+		
+		return screenshotRepo.findByIdAndUserId(id, userId);
+	}
+	
+	@Override
 	public Iterable<Screenshot> findByName(String name) {
 		
 		return screenshotRepo.findByNameContaining(name);
+	}
+	
+	@Override
+	public Iterable<Screenshot> findByNameAndUserId(String name, Long userId) {
+		
+		return screenshotRepo.findByNameAndUserId(name, userId);
+	}
+	
+	@Override
+	public Iterable<Screenshot> findByUserId(Long userId) {
+		
+		return screenshotRepo.findByUserId(userId);
 	}
 	
 	@Override
@@ -82,9 +106,10 @@ public abstract class AbstractScreenshotService implements IScreenshotService {
 	
 	@Override
 	@Transactional(rollbackFor = {IOException.class, RuntimeException.class})
-	public Screenshot storeScreenshot(String urlString) throws IOException {
+	public Screenshot storeScreenshot(String urlString, String userName) throws IOException {
 		
 		UrlUtil.isUrlValid(urlString);
+		Long userId = userService.getUserIdByUserName(userName);
 		
 		String fileName = "";
 		boolean fileNameUnique = false;
@@ -95,7 +120,7 @@ public abstract class AbstractScreenshotService implements IScreenshotService {
 		
 		Pair<String, ByteArrayOutputStream> pair = ScreenshotMaker.createScreenshotWithNameAndFile(urlString);
 		
-		Screenshot screenshot = new Screenshot(pair.getLeft(), fileName);
+		Screenshot screenshot = new Screenshot(pair.getLeft(), fileName, userId);
 		saveScreenshotFile(pair.getRight(), fileName);
 		screenshotRepo.save(screenshot);
 		
@@ -106,13 +131,13 @@ public abstract class AbstractScreenshotService implements IScreenshotService {
 	
 	@Override
 	@Transactional(rollbackFor = {IOException.class, RuntimeException.class})
-	public void updateScreenshot(String urlString) throws IOException {
+	public void updateScreenshot(String urlString, String userName) throws IOException {
 		
 		Collection<String> fileNameToSearchFor = findScreenshotFileNamesByUrl(urlString);
 		
 		if (fileNameToSearchFor.isEmpty()) {
 			// create if doesn't exist
-			this.storeScreenshot(urlString);
+			this.storeScreenshot(urlString, userName);
 			
 		} else {
 			UrlUtil.isUrlValid(urlString);

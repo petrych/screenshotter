@@ -22,22 +22,28 @@ public class Screenshot {
 	@Column(unique = true, updatable = false)
 	private final String fileName;
 	
-	public Screenshot(String name, String fileName) {
+	private Long userId;
+	
+	
+	public Screenshot(String name, String fileName, Long userId) {
 		
 		this.name = name;
 		this.dateTimeCreated = LocalDateTime.now(ZoneOffset.UTC);
 		this.fileName = fileName;
+		this.userId = userId;
 	}
 	
-	public Screenshot(String name, LocalDateTime dateTimeCreated, String fileName) {
+	public Screenshot(String name, LocalDateTime dateTimeCreated, String fileName, Long userId) {
 		
 		this.name = name;
 		this.dateTimeCreated = dateTimeCreated;
 		this.fileName = fileName;
+		this.userId = userId;
 	}
 	
 	// For Hibernate only
 	private Screenshot() {
+		
 		this.fileName = null;
 	}
 	
@@ -92,6 +98,16 @@ public class Screenshot {
 		return fileName;
 	}
 	
+	public Long getUserId() {
+		
+		return userId;
+	}
+	
+	public void setUserId(Long userId) {
+		
+		this.userId = userId;
+	}
+	
 	@Override
 	public boolean equals(Object o) {
 		
@@ -105,7 +121,7 @@ public class Screenshot {
 	@Override
 	public int hashCode() {
 		
-		return Objects.hash(id, name, uri, dateTimeCreated, fileName);
+		return Objects.hash(id, name, uri, dateTimeCreated, fileName, userId);
 	}
 	
 	@Override
@@ -115,7 +131,7 @@ public class Screenshot {
 				"id=" + id +
 				", name='" + name +
 				"', dateTimeCreated=" + dateTimeCreated +
-				']';
+				"].";
 	}
 	
 	public String toLogString() {
@@ -125,7 +141,8 @@ public class Screenshot {
 				", name='" + name +
 				"', fileName='" + fileName +
 				"', dateTimeCreated=" + dateTimeCreated +
-				']';
+				", userId='" + userId +
+				"'].";
 	}
 	
 }

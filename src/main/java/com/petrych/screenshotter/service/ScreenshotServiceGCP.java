@@ -7,6 +7,7 @@ import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.petrych.screenshotter.config.IStorageProperties;
 import com.petrych.screenshotter.persistence.repository.IScreenshotRepository;
+import com.petrych.screenshotter.service.user.IUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -26,9 +27,10 @@ class ScreenshotServiceGCP extends AbstractScreenshotService {
 	
 	private String bucketName;
 	
-	public ScreenshotServiceGCP(IScreenshotRepository screenshotRepo, IStorageProperties properties) {
+	public ScreenshotServiceGCP(IScreenshotRepository screenshotRepo, IStorageProperties properties,
+	                            IUserService userService) {
 		
-		super(screenshotRepo, properties);
+		super(screenshotRepo, properties, userService);
 		this.storage = properties.getStorageObjectGCP();
 		this.bucketName = properties.getStorageDir();
 	}

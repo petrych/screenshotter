@@ -1,9 +1,10 @@
 package com.petrych.screenshotter.service;
 
 import com.petrych.screenshotter.common.FileUtil;
-import com.petrych.screenshotter.config.IStorageProperties;
 import com.petrych.screenshotter.common.errorhandling.StorageException;
+import com.petrych.screenshotter.config.IStorageProperties;
 import com.petrych.screenshotter.persistence.repository.IScreenshotRepository;
+import com.petrych.screenshotter.service.user.IUserService;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +26,10 @@ public class ScreenshotServiceLocal extends AbstractScreenshotService {
 	
 	private String storageLocation;
 	
-	public ScreenshotServiceLocal(IScreenshotRepository screenshotRepo, IStorageProperties properties) {
+	public ScreenshotServiceLocal(IScreenshotRepository screenshotRepo, IStorageProperties properties,
+	                              IUserService userService) {
 		
-		super(screenshotRepo, properties);
+		super(screenshotRepo, properties, userService);
 		this.storageLocation = properties.getStorageDirAbsolutePath().toString();
 	}
 	

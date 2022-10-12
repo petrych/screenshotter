@@ -1,12 +1,16 @@
 package com.petrych.screenshotter.common.errorhandling;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petrych.screenshotter.common.FileUtil;
 import com.petrych.screenshotter.service.UrlUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -21,6 +25,10 @@ import java.util.Objects;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+	
+	@Autowired
+	private MappingJackson2HttpMessageConverter springJacksonConverter;
+	
 	
 	public GlobalExceptionHandler() {
 		
@@ -55,6 +63,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		ApiError apiError = new ApiError(httpStatus.value(), errorMessage, request.getRequestURI());
 		
 		LOG.warn(apiError.toString());
+		
+		return new ResponseEntity<>(apiError, Objects.requireNonNull(httpStatus));
+	}
+	
+	@ExceptionHandler(UserEntityNotFoundException.class)
+	public ResponseEntity<Object> handleUserEntityNotFoundException(Exception ex, HttpServletRequest request) throws
+	                                                                                                          JsonProcessingException {
+		
+		HttpStatus httpStatus = HttpStatus.NOT_FOUND;
+		
+		ObjectMapper objectMapper = springJacksonConverter.getObjectMapper();
+		ApiError apiErrorFromUserService = objectMapper.readValue(ex.getMessage(), ApiError.class);
+		String errorMessage = apiErrorFromUserService.message;
+		
+		ApiError apiError = new ApiError(httpStatus.value(), errorMessage, request.getRequestURI());
+		
+		LOG.warn(errorMessage);
+		
 		
 		return new ResponseEntity<>(apiError, Objects.requireNonNull(httpStatus));
 	}
